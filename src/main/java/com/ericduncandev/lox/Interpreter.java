@@ -566,7 +566,8 @@ class Interpreter implements Expr.Visitor<Object>,
             String str = (String) target;
 
             if (intIndex < 0 || intIndex >= str.length()) {
-                throw new RuntimeError(expr.bracket, "String index out of bounds.");
+                return null;
+//                throw new RuntimeError(expr.bracket, "String index out of bounds.");
             }
 
             String result = String.valueOf(str.charAt(intIndex));
