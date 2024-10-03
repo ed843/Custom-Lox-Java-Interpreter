@@ -4,7 +4,8 @@
 import "string_utils.lox";
 
 fun main() {
-    print(StringUtils.equals("testdde", "testddf"));
+    print(String.equals("testdde", "testddf"));
+    print(String.charAt("test", 2)); // returns s
 }
 
 main();
