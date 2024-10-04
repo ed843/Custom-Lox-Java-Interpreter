@@ -2,10 +2,21 @@
 
 // import "math_utils";
 import "string_utils.lox";
+import "math_utils";
 
 fun main() {
-    print(String.equals("testdde", "testddf"));
+    print(String.equals("testdde", "testddf")); // returns false
     print(String.charAt("test", 2)); // returns s
+    print(String.indexOf("test", "t")); // returns 0
+    print(String.substring("test", 1, 3)); // returns es
+    print(String.concat("Hello, ", "World!"));
+    print(String.repeat("Hello! ", Math.round((Math.random() * 5))));
+    print(String.replace("test", "es", "rea"));
+    print(String.trim("                   HELLO                 "));
+    print(String.toLowerCase("HELLO"));
+    print(String.toUpperCase("hello"));
+    print(String.isNumeric("482")); // returns true
+    print(String.isNumeric("test")); // returns false
 }
 
 main();

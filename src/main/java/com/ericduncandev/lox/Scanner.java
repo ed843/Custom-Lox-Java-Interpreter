@@ -150,6 +150,7 @@ class Scanner {
                 break;
 
             case '"': string(); break;
+            case '\'': character(); break;
 
             default:
                 if (isDigit(c)) {
@@ -203,6 +204,47 @@ class Scanner {
         // Trim the surrounding quotes.
         String value = source.substring(start + 1, current - 1);
         addToken(STRING, value);
+    }
+
+    private void character() {
+
+        char value;
+        if (peek() == '\\') {
+            // Handle escape sequences
+            advance();
+            value = escapeSequence(peek());
+            advance();
+        } else if (peek() == '\'') {
+            // Empty character literal
+            Lox.error(line, "Empty character literal.");
+            value = '\0';
+        } else {
+            value = advance();
+        }
+
+        // Check for closing quote
+        if (peek() != '\'') {
+            Lox.error(line, "Unterminated character literal.");
+            return;
+        }
+
+        // Consume the closing quote
+        advance();
+
+        addToken(CHAR, value);
+    }
+
+    private char escapeSequence(char c) {
+        switch (c) {
+            case 'n': return '\n';
+            case 't': return '\t';
+            case 'r': return '\r';
+            case '\\': return '\\';
+            case '\'': return '\'';
+            default:
+                Lox.error(line, "Invalid escape sequence: \\" + c);
+                return '\0';
+        }
     }
 
     private boolean match(char expected) {

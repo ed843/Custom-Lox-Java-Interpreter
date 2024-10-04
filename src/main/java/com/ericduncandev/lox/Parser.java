@@ -445,7 +445,7 @@ class Parser {
         if (match(TRUE)) return new Expr.Literal(true);
         if (match(NIL)) return new Expr.Literal(null);
 
-        if (match(NUMBER, STRING)) {
+        if (match(NUMBER, STRING, CHAR)) {
             return new Expr.Literal(previous().literal);
         }
 

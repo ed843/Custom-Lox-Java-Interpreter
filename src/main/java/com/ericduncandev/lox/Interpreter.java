@@ -70,6 +70,29 @@ class Interpreter implements Expr.Visitor<Object>,
             @Override
             public String toString() { return "<native fn>"; }
         });
+        globals.define("toCharCode", new LoxCallable() {
+            public int arity() { return 1; }
+            public Object call(Interpreter interpreter, Token callToken, List<Object> arguments) {
+                if (arguments.get(0) instanceof Character) {
+                    int result = (int) ((char)arguments.get(0));
+                    return (double) result;
+                } else {
+                    throw new RuntimeError(callToken, "Arguments to 'charCode' must be a character.");
+                }
+            }
+        });
+        globals.define("fromCharCode", new LoxCallable() {
+            public int arity() { return 1; }
+            public Object call(Interpreter interpreter, Token callToken, List<Object> arguments) {
+                if (arguments.get(0) instanceof Double) {
+                    int result = (int) ((Double) arguments.get(0)).doubleValue();
+                    return (char) result;
+                } else {
+                    throw new RuntimeError(callToken, "Arguments to 'charCode' must be a number");
+                }
+
+            }
+        });
         // TODO: ADD MORE NATIVE FUNCTIONS
     }
 
@@ -179,12 +202,15 @@ class Interpreter implements Expr.Visitor<Object>,
 
     private void checkNumberOperand(Token operator, Object operand) {
         if (operand instanceof Double) return;
+        if (operand instanceof Character) return;
         throw new RuntimeError(operator, "Operand must be a number.");
     }
 
-    private void checkNumberOperands(Token operator,
+    private int checkNumberOperands(Token operator,
                                      Object left, Object right) {
-        if (left instanceof Double && right instanceof Double) return;
+//        System.out.println((left.getClass()) + " " + operator + " " + right.getClass());
+        if (left instanceof Double && right instanceof Double) return 1;
+        if (left instanceof Character && right instanceof Character) return 0;
 
         throw new RuntimeError(operator, "Operands must be numbers.");
     }
@@ -414,17 +440,30 @@ class Interpreter implements Expr.Visitor<Object>,
 
         switch (expr.operator.type) {
             case GREATER:
-                checkNumberOperands(expr.operator, left, right);
-                return (double) left > (double) right;
+                if (checkNumberOperands(expr.operator, left, right) == 1)
+                {
+                    return (double) left > (double) right;
+                } else if(checkNumberOperands(expr.operator, left, right) == 0) {
+                    return (char) left > (char) right;
+                }
             case GREATER_EQUAL:
-                checkNumberOperands(expr.operator, left, right);
-                return (double) left >= (double) right;
+                if (checkNumberOperands(expr.operator, left, right) == 1) {
+                    return (double) left >= (double) right;
+                } else if(checkNumberOperands(expr.operator, left, right) == 0) {
+                    return (char) left >= (char) right;
+                }
             case LESS:
-                checkNumberOperands(expr.operator, left, right);
-                return (double) left < (double) right;
+                if (checkNumberOperands(expr.operator, left, right) == 1) {
+                    return (double) left < (double) right;
+                } else if(checkNumberOperands(expr.operator, left, right) == 0) {
+                    return (char) left < (char) right;
+                }
             case LESS_EQUAL:
-                checkNumberOperands(expr.operator, left, right);
-                return (double) left <= (double) right;
+                if (checkNumberOperands(expr.operator, left, right) == 1) {
+                    return (double) left <= (double) right;
+                } else if(checkNumberOperands(expr.operator, left, right) == 0) {
+                    return (char) left <= (char) right;
+                }
             case BANG_EQUAL:
                 return !isEqual(left, right);
             case EQUAL_EQUAL:
@@ -439,6 +478,10 @@ class Interpreter implements Expr.Visitor<Object>,
 
                 if (left instanceof Double && right instanceof Double) {
                     return (double) left + (double) right;
+                }
+                System.out.println(left.getClass() + " " + right.getClass());
+                if (left instanceof Character || right instanceof Character) {
+                    return stringify(left) + stringify(right);
                 }
 
                 throw new RuntimeError(expr.operator,
@@ -570,7 +613,7 @@ class Interpreter implements Expr.Visitor<Object>,
 //                throw new RuntimeError(expr.bracket, "String index out of bounds.");
             }
 
-            String result = String.valueOf(str.charAt(intIndex));
+            char result = str.charAt(intIndex);
             if (DEBUG) {
                 System.out.println("Debug: String access result: " + stringify(result));
             }
